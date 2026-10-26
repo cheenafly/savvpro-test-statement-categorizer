@@ -14,7 +14,6 @@ dependencies = [
     "pydantic>=2",
     "pydantic-settings",
     "sqlalchemy>=2",
-    "pandas",
     "openpyxl",
     "python-dateutil",
     "rapidfuzz",
