@@ -65,3 +65,34 @@ One entry per phase: what was asked, what went wrong, how it was fixed.
     the samples into a temp dir and compares bytes with the committed files.
   - Added a subprocess test that importing `app.parsing` loads no SQLAlchemy/FastAPI modules.
     pandas turned out to be unused and was removed from the dependencies.
+
+## Phase 4: categorization engine, edge cases and golden evaluation (plan phases 4-6)
+
+- **Asked:** a pure, deterministic rule engine. It needed a merchant normalizer, YAML rule data
+  validated against the taxonomy, seven signals, a direction check, aggregation with agreement
+  bonus, auto/review thresholds and forced review for ambiguous merchants. Also refund linking,
+  duplicate/pending/chargeback handling, a hand-labelled golden set for all 134 sample rows, an
+  evaluator and tests.
+- **What went wrong:**
+  - Normalizer: the first domain regex only handled one dot, so `AWS.AMAZON.CO` and
+    `HELP.UBER.COM` leaked into merchant keys.
+  - Rule collisions found on review: `UPWORK *SERVICE FEE` matched both the bank-fee and
+    platform-fee patterns (a guaranteed conflict), and `AWS.AMAZON.CO` tripped the Amazon
+    ambiguity rule.
+  - `rapidfuzz.token_set_ratio` scores a pure subset as 100 ("BEST" vs "BEST BUY"). Used alone it
+    would auto-assign on one shared word.
+  - ruff's auto-fix expanded the US-states set into a 45-line list.
+  - `scripts/evaluate.py` could not import `app`. The venv's `.pth` files carry the macOS
+    `hidden` flag, and Python 3.14 skips hidden `.pth` files, so the editable install was
+    silently inactive; pytest only worked because it adds the rootdir itself.
+  - The golden set scores 100%, but the rules were written with the samples in view. That is
+    partly overfitting, not proof of generality.
+- **How it was fixed:**
+  - Domain regex accepts multi-label hosts.
+  - Bank-fee pattern has a negative lookahead for platform names. The Amazon rule excludes AWS.
+  - Fuzzy matches also need a plain `ratio >= 80` and a key of at least 5 characters, and fuzzy
+    only runs when no exact merchant hit exists.
+  - Rewrote the set by hand with `# fmt: skip`.
+  - The evaluator puts `backend/` on `sys.path` itself instead of depending on the install.
+  - Added 10 hand-written unseen rows (unknown merchants must go to review) and a review-rate
+    ceiling, so precision cannot be bought by asking about everything.

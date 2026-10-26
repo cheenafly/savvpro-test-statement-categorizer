@@ -77,3 +77,4 @@ class Decision:
     suggested_category_id: str | None = None
     rule_id: str | None = None
     flags: list[str] = field(default_factory=list)
+    linked_row_index: int | None = None  # refund -> original purchase row
