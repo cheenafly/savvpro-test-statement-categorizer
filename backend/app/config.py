@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Annotated
 
 from pydantic import field_validator
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
     max_upload_mb: int = 5
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
     log_level: str = "INFO"
+    samples_dir: Path = Path(__file__).resolve().parents[2] / "samples"
 
     @field_validator("cors_origins", mode="before")
     @classmethod

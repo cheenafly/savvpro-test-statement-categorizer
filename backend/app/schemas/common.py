@@ -16,3 +16,4 @@ Money = Annotated[
 class ErrorOut(BaseModel):
     detail: str
     code: str | None = None
+    statement_id: int | None = None  # set on 409 duplicate upload: the existing statement

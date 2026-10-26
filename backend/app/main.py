@@ -5,7 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import Engine
 
-from app.api import categories, health
+from app.api import categories, health, rules, samples, statements, transactions
+from app.api.errors import register_error_handlers
 from app.config import Settings, get_settings
 from app.db import session as db_session
 from app.logging import configure_logging
@@ -28,8 +29,9 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         allow_headers=["*"],
     )
 
-    app.include_router(health.router, prefix="/api")
-    app.include_router(categories.router, prefix="/api")
+    for module in (health, categories, statements, transactions, rules, samples):
+        app.include_router(module.router, prefix="/api")
+    register_error_handlers(app)
 
     return app
 

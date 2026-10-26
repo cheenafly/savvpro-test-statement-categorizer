@@ -96,3 +96,23 @@ One entry per phase: what was asked, what went wrong, how it was fixed.
   - The evaluator puts `backend/` on `sys.path` itself instead of depending on the install.
   - Added 10 hand-written unseen rows (unknown merchants must go to review) and a review-rate
     ceiling, so precision cannot be bought by asking about everything.
+
+## Phase 7: REST API, services, learned rules
+
+- **Asked:** fix the venv import issue for real; thin services (ingest, review with learned
+  merchant rules, summary, export); routers under `/api`; ErrorOut error handling; upload
+  limits; API tests; prove it end to end with uvicorn and curl.
+- **What went wrong:**
+  - A delete test assumed a re-uploaded statement gets a new id. SQLite reuses the freed id
+    (no AUTOINCREMENT), so the assertion was wrong, not the code.
+  - Learned-rule hit counts came out as 3 instead of 2: a same-day duplicate that stays in
+    review still carried the rule id, so it counted as a hit.
+  - httpx request logs from the test client cluttered the JSON log output.
+- **How it was fixed:**
+  - The test now checks the transactions table is empty after delete and that the same file
+    can be uploaded again.
+  - A hit counts only when the rule actually auto-assigned the row (`rule_hit`).
+  - The `httpx` logger is set to WARNING.
+- **README note (for Phase 11):** on macOS with Python 3.14, if `import app` fails outside
+  `backend/`, run `chflags nohidden .venv/lib/python3.*/site-packages/*.pth`. Python 3.14
+  skips `.pth` files that carry the `hidden` flag.

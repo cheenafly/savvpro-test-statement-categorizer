@@ -36,6 +36,10 @@ class Statement(Base):
     uploaded_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     row_count: Mapped[int] = mapped_column(Integer, default=0)
     parse_errors: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    warnings: Mapped[list[str]] = mapped_column(JSON, default=list)
+    detected_format: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    # sha256 of the uploaded bytes; NULL for statements created outside an upload.
+    file_hash: Mapped[str | None] = mapped_column(String(64), unique=True)
 
     transactions: Mapped[list["Transaction"]] = relationship(
         back_populates="statement",
