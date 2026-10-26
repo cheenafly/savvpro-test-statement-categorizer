@@ -137,3 +137,34 @@ One entry per phase: what was asked, what went wrong, how it was fixed.
   - The test now finds rows by their category select's label. The table gets
     `aria-labelledby` pointing at its heading, so tests and screen readers both get a real
     name.
+
+## Phase 10-12: CI, Docker, docs and final audit
+
+- **Asked:** Makefile, GitHub Actions CI (Python 3.12 + 3.14, Node 22), backend and frontend
+  Dockerfiles with compose, a secret/real-data scan, the root README, DESIGN.md, AI_USAGE.md
+  with token usage, a final audit against TASK.md, then push and open the PR.
+- **What went wrong:**
+  - The requested prerequisites (Python 3.11+, Node 18+) were not accurate. Vite 8 requires
+    Node ^20.19 or >=22.12, and only Python 3.12 and 3.14 are tested.
+  - `npm install --package-lock-only`, used to sync the new `engines` field, silently dropped
+    the `libc` constraints from the Linux native-binary entries in the lockfile.
+  - The first `.dockerignore` rule `**/data` would also have excluded `app/brain/data/`, the
+    rule YAML files.
+  - The first DESIGN draft said an oversize upload is never fully buffered. Starlette spools
+    the whole multipart body first. It also misdescribed the foreign-merchant test and the
+    unseen rows.
+  - Docker is not installed, so the images could not be built.
+  - The push was rejected: the GitHub CLI token lacks the `workflow` scope needed to push
+    `.github/workflows/ci.yml`.
+  - `ccusage` has no per-project filter, and its reports include unrelated projects on the
+    same machine.
+- **How it was fixed:**
+  - `requires-python` is now `>=3.12`, and `engines` says Node `^20.19.0 || >=22.12.0`. The
+    README states both.
+  - Restored the original lockfile and edited only the name and `engines`; verified with
+    `npm ci`.
+  - Narrowed the ignore rule to `backend/data`.
+  - Corrected the DESIGN claims after re-reading the code and tests.
+  - The README marks Docker as "provided, not verified on this machine".
+  - The push and PR wait for `gh auth refresh -s workflow`.
+  - AI_USAGE reports only this repo's session (`06ac5964…`) and explains the rest.
