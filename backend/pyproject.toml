@@ -7,7 +7,7 @@ name = "statement-categorizer"
 version = "0.1.0"
 description = "Rule-based bank and credit card statement categorizer for freelancers."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi",
     "uvicorn[standard]",
@@ -37,7 +37,7 @@ include = ["app*"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
