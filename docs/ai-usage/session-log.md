@@ -116,3 +116,24 @@ One entry per phase: what was asked, what went wrong, how it was fixed.
 - **README note (for Phase 11):** on macOS with Python 3.14, if `import app` fails outside
   `backend/`, run `chflags nohidden .venv/lib/python3.*/site-packages/*.pth`. Python 3.14
   skips `.pth` files that carry the `hidden` flag.
+
+## Phase 8: review UI and frontend tests (plan phases 8-9)
+
+- **Asked:** a Vite + React + TypeScript single page with plain CSS (light/dark): upload with
+  samples, statement list, import notes, summary cards and category totals, a review table with
+  tabs, search, inline category editing and "remember for this merchant", CSV export. Typed API
+  client, Vitest + Testing Library tests with fetch mocked, proxy to the backend.
+- **What went wrong:**
+  - Node was not installed (no node, nvm, fnm, volta or Homebrew).
+  - The current Vite template ships oxlint instead of ESLint.
+  - One test failed on its first run: the fixture's description and merchant key were the same
+    text, so `getByText` found two elements. The test was wrong, not the UI.
+  - A first draft queried the transactions table by an empty accessible name, which only
+    worked by accident.
+- **How it was fixed:**
+  - Installed the official Node v24.22.1 LTS tarball (checksum verified) into `~/.local/node`.
+    User space, no sudo. Add `~/.local/node/bin` to PATH.
+  - Kept oxlint and run it with `--deny-warnings` as `npm run lint`.
+  - The test now finds rows by their category select's label. The table gets
+    `aria-labelledby` pointing at its heading, so tests and screen readers both get a real
+    name.
